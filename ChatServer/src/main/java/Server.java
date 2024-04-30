@@ -3,13 +3,18 @@ import java.net.ServerSocket;
 
 public class Server {
     public static void main(String[] args) {
-        int portNumber = 4444;
-        serverSocket = null;
+        EnvVariables envVar = new EnvVariables();
+        int portNumber = envVar.getPort();
+        ServerSocket serverSocket = null;
         try {
-            ServerSocket serverSocket = new ServerSocket(portNumber);
+            serverSocket = new ServerSocket(portNumber);
+            System.out.println("Server is running on port: " + portNumber);
+            while (true) {
+
+            }
         } catch(IOException e) {
             System.err.println("Could not bind to port: "+ portNumber);
-            System.exit(1)
+            System.exit(1);
         }
     }
 }
