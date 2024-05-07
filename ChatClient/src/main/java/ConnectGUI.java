@@ -2,6 +2,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusAdapter;
 
 public class ConnectGUI extends JFrame {
     EnvVariables envVar = new EnvVariables();
@@ -17,20 +19,27 @@ public class ConnectGUI extends JFrame {
         JLabel ipLabel = new JLabel("IP ADDRESS");
         JLabel portLabel = new JLabel("PORT");
         JLabel usernameLabel = new JLabel("USERNAME");
-        JTextField ipField = new JTextField(10);
-        JTextField portField = new JTextField(10);
-        JTextField usernameField = new JTextField(10);
+        PlaceholderTextField ipField = new PlaceholderTextField("IP ADDRESS");
+        PlaceholderTextField portField = new PlaceholderTextField("PORT");
+        PlaceholderTextField usernameField = new PlaceholderTextField("USERNAME");
+
         JButton connectButton = new JButton("Connect");
         JDialog connectStatus = new JDialog();
+
+        String usernameText, ipText, portText;
+        ipText = ipField.getText();
+        portText = portField.getText();
+        usernameText = usernameField.getText();
+
+
+
+
+
 
         connectButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String[] connectionDetails;
-                String usernameText, ipText, portText;
-                ipText = ipField.getText();
-                portText = portField.getText();
-                usernameText = usernameField.getText();
+
 
 
 
@@ -67,6 +76,29 @@ public class ConnectGUI extends JFrame {
 
 
     }
+    public class PlaceholderTextField extends JTextField {
+        private String placeholderContent;
+
+        public PlaceholderTextField(String placeholderContent) {
+            this.placeholderContent = placeholderContent;
+            setText(placeholderContent);
+
+            addFocusListener(new FocusAdapter() {
+
+                public void focusGained(FocusEvent e) {
+                    if (getText().equals(placeholderContent)) {
+                        setText("");
+                    }
+                }
+
+
+                public void focusLost(FocusEvent e) {
+                    if (getText().isEmpty()) {
+                        setText(placeholderContent);
+                    }
+                }
+            });
+        }}
     public static void main (String[] args) {
         new ConnectGUI();
 
