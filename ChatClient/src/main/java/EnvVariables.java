@@ -18,4 +18,5 @@ public class EnvVariables {
     public void setPort(int port) {
         this.port = port;
     }
+
 }
