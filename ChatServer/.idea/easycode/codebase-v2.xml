@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="com.obiscr.chatgpt.settings.EasyCodeState">
+    <option name="projectFiles" value="$PROJECT_DIR$/src/main/java/ChatServer.java;C:/Users/Cal/Documents/GitHub/JavaProject/ChatServer/src/main/java/ClientHandler.java;C:/Users/Cal/Documents/GitHub/JavaProject/ChatServer/src/main/java/ClientManagement.java;C:/Users/Cal/Documents/GitHub/JavaProject/ChatServer/src/main/java/EnvVariables.java;C:/Users/Cal/Documents/GitHub/JavaProject/ChatServer/src/main/java/HttpsServer.java;C:/Users/Cal/Documents/GitHub/JavaProject/ChatServer/src/main/java/MessageBroadcaster.java;C:/Users/Cal/Documents/GitHub/JavaProject/ChatServer/pom.xml" />
+  </component>
+</project>
