@@ -4,9 +4,12 @@ import java.net.ServerSocket;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.Date;
 import java.text.SimpleDateFormat;
+
 public class ChatServer {
     private ServerSocket serverSocket;
     private CopyOnWriteArrayList<ClientHandler> clients = new CopyOnWriteArrayList<>();
+
+
 
     public void start(int port) {
         try {
@@ -44,10 +47,13 @@ public class ChatServer {
         public void run() {
             try {
                 // First message from the client is expected to be the username
-                username = reader.readLine();
                 String inputLine;
                 while ((inputLine = reader.readLine()) != null) {
-                    processMessage(username, inputLine);
+                    if(inputLine.startsWith("/")) {
+                        handleCommand(inputLine);
+                    } else {
+                        processMessage(username, inputLine);
+                    }
                 }
             } catch (IOException e) {
                 System.err.println("Error handling client: " + e.getMessage());
@@ -64,6 +70,32 @@ public class ChatServer {
                 }
             } catch (IOException e) {
                 System.err.println("Error closing client connection: " + e.getMessage());
+            }
+        }
+
+        private void handleCommand(String command) {
+            String[] parts = command.split(" ", 2);
+            String cmd = parts[0];
+            String message = parts.length > 1 ? parts[1] : "";
+
+            switch (cmd) {
+                case "/broadcast":
+                    broadcastMessage("Broadcast from " + username + ": " + message);
+                    System.out.println("Broadcasted from" + username);
+                    break;
+                case "/exit":
+                case "/disconnect":
+                    try {
+                        if(socket != null) {
+                            socket.close();
+                        }
+                    } catch (IOException e) {
+                        System.err.println(e.getMessage());
+                    }
+                case "/coinflip":
+                    broadcastMessage("50/50");
+                default:
+                    writer.println("Unknown command: " + cmd);
             }
         }
 
@@ -84,6 +116,7 @@ public class ChatServer {
     }
 
     public static void main(String[] args) {
-        new ChatServer().start(4444);
+        EnvVariables envPort = new EnvVariables();
+        new ChatServer().start(envPort.getPort());
     }
 }
