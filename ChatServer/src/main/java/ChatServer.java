@@ -8,6 +8,7 @@ import java.text.SimpleDateFormat;
 public class ChatServer {
     private ServerSocket serverSocket;
     private CopyOnWriteArrayList<ClientHandler> clients = new CopyOnWriteArrayList<>();
+    private CopyOnWriteArrayList<String> usernames = new CopyOnWriteArrayList<>();
 
 
 
@@ -47,6 +48,11 @@ public class ChatServer {
         public void run() {
             try {
                 // First message from the client is expected to be the username
+                username = reader.readLine();
+                if (username != null && !username.isEmpty()) {
+                    usernames.add(username);
+
+                }
                 String inputLine;
                 while ((inputLine = reader.readLine()) != null) {
                     if(inputLine.startsWith("/")) {
@@ -65,6 +71,10 @@ public class ChatServer {
         private void closeConnection() {
             try {
                 clients.remove(this);
+                if (username != null) {
+                    usernames.remove(username);
+
+                }
                 if (socket != null) {
                     socket.close();
                 }
@@ -85,19 +95,35 @@ public class ChatServer {
                     break;
                 case "/exit":
                 case "/disconnect":
-                    try {
-                        if(socket != null) {
-                            socket.close();
-                        }
-                    } catch (IOException e) {
-                        System.err.println(e.getMessage());
-                    }
+                    broadcastMessage(username + " has left the chat");
+                    closeConnection();
+                    break;
+
                 case "/coinflip":
-                    broadcastMessage("50/50");
+                    broadcastMessage(flip());
+
+
+                    System.out.println(username + "used /coinflip");
+                    break;
+                case "/userlist":
+                    broadcastUserList();
+                    System.out.println(username + "used /userlist");
+                    break;
                 default:
                     writer.println("Unknown command: " + cmd);
             }
         }
+        public String flip() {
+            double random = Math.random();
+            String text = "";
+            if (random < 0.5) {
+                text = "Heads";
+            } else {
+                text = "Tails";
+            }
+            return text;
+        }
+
 
         private void processMessage(String username, String message) {
 
@@ -114,6 +140,14 @@ public class ChatServer {
             client.writer.println(message);
         }
     }
+
+    private void broadcastUserList() {
+        String userList = String.join(",", usernames);
+        for (ClientHandler client : clients) {
+            client.writer.println("/userlist " + userList);
+        }
+    }
+
 
     public static void main(String[] args) {
         EnvVariables envPort = new EnvVariables();

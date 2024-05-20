@@ -66,6 +66,7 @@ public class ChatClientGUI extends JFrame {
 
             messageArea = new JTextArea();
             messageArea.setEditable(false);
+            messageArea.setLineWrap(true);
             JScrollPane scrollPane = new JScrollPane(messageArea);
             JList<String> userList = new JList<>(new String[]{"All", "Anuraag", "Rohit"});
             JScrollPane userListScrollPane = new JScrollPane(userList);
@@ -170,6 +171,7 @@ public class ChatClientGUI extends JFrame {
         } catch (IOException e) {
             System.out.println("Disconnected from server.");
             SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(this, "Disconnected from server.", "Connection Error", JOptionPane.ERROR_MESSAGE));
+
         } finally {
             closeConnection();
         }
