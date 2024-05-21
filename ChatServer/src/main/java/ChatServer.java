@@ -92,22 +92,26 @@ public class ChatServer {
                 case "/broadcast":
                     broadcastMessage("Broadcast from " + username + ": " + message);
                     System.out.println("Broadcasted from" + username);
+                    logMessage("Broadcast from" + username);
                     break;
                 case "/exit":
                 case "/disconnect":
                     broadcastMessage(username + " has left the chat");
+
                     closeConnection();
                     break;
 
                 case "/coinflip":
-                    broadcastMessage(flip());
+                    processMessage(username, flip());
+                    logMessage("dsa used /coinflip and got: " + flip());
 
 
-                    System.out.println(username + "used /coinflip");
+
+                    System.out.println(username + " used /coinflip");
                     break;
                 case "/userlist":
                     broadcastUserList();
-                    System.out.println(username + "used /userlist");
+                    System.out.println(username + " used /userlist");
                     break;
                 default:
                     writer.println("Unknown command: " + cmd);
@@ -117,9 +121,9 @@ public class ChatServer {
             double random = Math.random();
             String text = "";
             if (random < 0.5) {
-                text = "Heads";
+                text = " got Heads in /coinflip!";
             } else {
-                text = "Tails";
+                text = " got Tails in /coinflip!";
             }
             return text;
         }
@@ -132,25 +136,51 @@ public class ChatServer {
             String formattedMessage = " [" + dateFormatter + "] " + username + ": " + message;
             System.out.println("Received: " + formattedMessage);
             broadcastMessage(formattedMessage);
+
         }
     }
 
+    private void logMessage(String message) {
+        String logFileDate = new SimpleDateFormat("dd-MM").format(new Date());
+        String logFileName = "chat-" + logFileDate + ".log";
+        File logFile = new File(logFileName);
+        try {
+            if (!logFile.exists()) {
+                logFile.createNewFile();
+            }
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(logFile, true))) {
+                writer.write(message);
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
     private void broadcastMessage(String message) {
         for (ClientHandler client : clients) {
             client.writer.println(message);
+            logMessage(message);
         }
     }
 
     private void broadcastUserList() {
         String userList = String.join(",", usernames);
         for (ClientHandler client : clients) {
-            client.writer.println("/userlist " + userList);
+            client.writer.println("User List: " + userList);
         }
     }
 
 
     public static void main(String[] args) {
         EnvVariables envPort = new EnvVariables();
-        new ChatServer().start(envPort.getPort());
+        //Open thread for ChatServer
+        new Thread(() -> new ChatServer().start(envPort.getPort())).start();
+        // Start HTTP Server
+        try {
+            StatsHttpServer.startHttpServer(envPort.getWebPort());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 }

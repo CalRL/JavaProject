@@ -24,6 +24,7 @@ public class ChatClientGUI extends JFrame {
                 try {
                     if (socket != null && !socket.isClosed() && out != null) {
                         out.println("/exit"); // Send a proper disconnection signal
+
                         out.flush();
                         socket.shutdownOutput(); // Close output stream to indicate no more data will be sent
                         try {
@@ -153,7 +154,9 @@ public class ChatClientGUI extends JFrame {
     private void closeConnection() {
         if (socket != null && !socket.isClosed()) {
             try {
+                out.println("/exit");
                 socket.close();
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
