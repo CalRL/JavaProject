@@ -13,6 +13,7 @@ public class StatsHttpServer {
 
     private static final Instant startTime = Instant.now();
 
+    // Start the HTTP server
     public static void startHttpServer(int port) throws IOException {
         HttpServer httpServer = HttpServer.create(new InetSocketAddress(port), 0);
         httpServer.createContext("/", new StatsHandler());
@@ -31,7 +32,7 @@ public class StatsHttpServer {
             os.write(response.getBytes(StandardCharsets.UTF_8));
             os.close();
         }
-
+        // Generate the HTML for the stats page
         private String generateStatsPage() {
             StringBuilder html = new StringBuilder();
             html.append("<html>")
@@ -78,7 +79,7 @@ public class StatsHttpServer {
                     .append("</html>");
             return html.toString();
         }
-
+        // Read messages from the log file
         private String readMessagesFromFile() {
             StringBuilder messages = new StringBuilder();
             String logFileDate = new SimpleDateFormat("dd-MM").format(new Date());
@@ -102,6 +103,7 @@ public class StatsHttpServer {
 
     static class MessagesHandler implements HttpHandler {
         @Override
+        // Handle the HTTP request and send the messages as a response
         public void handle(HttpExchange exchange) throws IOException {
             String messages = readMessagesFromFile();
             exchange.getResponseHeaders().add("Content-Type", "text/html");
@@ -110,7 +112,7 @@ public class StatsHttpServer {
             os.write(messages.getBytes(StandardCharsets.UTF_8));
             os.close();
         }
-
+        // Read messages from the log file used in the handle method, and appends the messages to the HTML code
         private String readMessagesFromFile() {
             StringBuilder messages = new StringBuilder();
             String logFileDate = new SimpleDateFormat("dd-MM").format(new Date());
