@@ -152,7 +152,7 @@ public class ChatServer {
         private void processMessage(String username, String message) {
             Date now = new Date();
             String dateFormatter = new SimpleDateFormat("dd/MM HH:mm:ss").format(now);
-            String formattedMessage = " [" + dateFormatter + "] " + username + ": " + message;
+            String formattedMessage = "[" + dateFormatter + "] " + username + ": " + message;
             System.out.println("Received: " + formattedMessage);
             broadcastMessage(formattedMessage);
         }
@@ -179,16 +179,19 @@ public class ChatServer {
     private void logMessageToFile(String message) {
         String logFileDate = new SimpleDateFormat("dd-MM").format(new Date());
         String logFileName = "chat-" + logFileDate + ".log";
-        File logFile = new File(logFileName);
+        File logFile = new File("./" + logFileName);
         try {
             if (!logFile.exists()) {
                 logFile.createNewFile();
+
+            } else {
             }
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(logFile, true))) {
                 writer.write(message);
                 writer.newLine();
             }
         } catch (IOException e) {
+
             e.printStackTrace();
         }
     }
