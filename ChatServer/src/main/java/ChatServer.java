@@ -184,7 +184,7 @@ public class ChatServer {
             if (!logFile.exists()) {
                 logFile.createNewFile();
 
-            } 
+            }
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(logFile, true))) {
                 writer.write(message);
                 writer.newLine();
