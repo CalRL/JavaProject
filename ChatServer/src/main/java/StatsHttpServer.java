@@ -12,12 +12,15 @@ import java.text.SimpleDateFormat;
 public class StatsHttpServer {
 
     private static final Instant startTime = Instant.now();
+    private static ChatServer chatServer;
 
     // Start the HTTP server
-    public static void startHttpServer(int port) throws IOException {
+    public static void startHttpServer(int port, ChatServer server) throws IOException {
+        chatServer = server;
         HttpServer httpServer = HttpServer.create(new InetSocketAddress(port), 0);
         httpServer.createContext("/", new StatsHandler());
         httpServer.createContext("/messages", new MessagesHandler());
+        httpServer.createContext("/usercount", new UserCountHandler());
         httpServer.setExecutor(null); // creates a default executor
         httpServer.start();
         System.out.println("HTTP server started on port " + port);
@@ -32,6 +35,7 @@ public class StatsHttpServer {
             os.write(response.getBytes(StandardCharsets.UTF_8));
             os.close();
         }
+
         // Generate the HTML for the stats page
         private String generateStatsPage() {
             StringBuilder html = new StringBuilder();
@@ -43,12 +47,19 @@ public class StatsHttpServer {
                     .append("    document.getElementById('messages').innerHTML = data;")
                     .append("  });")
                     .append("}")
+                    .append("function fetchUserCount() {")
+                    .append("  fetch('/usercount').then(response => response.text()).then(data => {")
+                    .append("    document.getElementById('usercount').innerHTML = data;")
+                    .append("  });")
+                    .append("}")
                     .append("setInterval(fetchMessages, 2000);") // Fetch messages every 2 seconds
+                    .append("setInterval(fetchUserCount, 2000);") // Fetch user count every 2 seconds
                     .append("</script>")
                     .append("</head>")
                     .append("<body>")
                     .append("<h1>Server Stats</h1>")
                     .append("<p><b>Uptime:</b> <span id='uptime'></span></p>")
+                    .append("<p><b>User Count:</b> <span id='usercount'></span></p>")
                     .append("<h2>Messages:</h2>")
                     .append("<ul id='messages'>");
 
@@ -79,6 +90,7 @@ public class StatsHttpServer {
                     .append("</html>");
             return html.toString();
         }
+
         // Read messages from the log file
         private String readMessagesFromFile() {
             StringBuilder messages = new StringBuilder();
@@ -112,6 +124,7 @@ public class StatsHttpServer {
             os.write(messages.getBytes(StandardCharsets.UTF_8));
             os.close();
         }
+
         // Read messages from the log file used in the handle method, and appends the messages to the HTML code
         private String readMessagesFromFile() {
             StringBuilder messages = new StringBuilder();
@@ -131,6 +144,18 @@ public class StatsHttpServer {
                 System.out.println("Log file does not exist: " + logFileName);
             }
             return messages.toString();
+        }
+    }
+
+    static class UserCountHandler implements HttpHandler {
+        @Override
+        public void handle(HttpExchange exchange) throws IOException {
+            String response = "Connected Users: " + chatServer.getUserCount() + "<br><b> Usernames:</b> " + String.join(", ", chatServer.getUsernames());
+            exchange.getResponseHeaders().add("Content-Type", "text/html");
+            exchange.sendResponseHeaders(200, response.getBytes(StandardCharsets.UTF_8).length);
+            OutputStream os = exchange.getResponseBody();
+            os.write(response.getBytes(StandardCharsets.UTF_8));
+            os.close();
         }
     }
 }
